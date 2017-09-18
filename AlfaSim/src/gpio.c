@@ -5,21 +5,35 @@
  *  Author: bldh
  */
 
+#include <stdbool.h>
 #include <avr/io.h>
 #include "gpio.h"
 #include "util.h"
 
-gpio_t gpio_init(volatile uint8_t* port, uint8_t pin, uint8_t dir_port, dir_t dir, bool pullup){
+gpio_t gpio_out_init(volatile uint8_t* port, uint8_t pin, volatile uint8_t* dir_port){
 	gpio_t new_gpio;
 
 	new_gpio.port = port;
 	new_gpio.pin = pin;
-	new_gpio.dir = dir;
 
-	//Write to registers to set pin DDRB and all that stuff
-
+    //Enable pin for output
+    set_bit(*dir_port, pin);
 
 	return(new_gpio);
+}
+
+gpio_t gpio_in_init(volatile uint8_t* port, uint8_t pin, volatile uint8_t* pullup_reg, uint8_t pullup){
+	gpio_t new_gpio;
+
+	new_gpio.port = port;
+	new_gpio.pin = pin;
+
+    //Set pullup resistor
+    if(pullup == true){
+        set_bit(*pullup_reg, pin);
+    }
+
+    return(new_gpio);
 }
 
 uint8_t gpio_read(gpio_t gpio){
@@ -28,8 +42,9 @@ uint8_t gpio_read(gpio_t gpio){
 }
 
 void gpio_set(gpio_t gpio){
-    set_bit(*port, pin);
+    set_bit(*(gpio.port), gpio.pin);
 }
- void gpio_clear(gpio_t){
-     clear_bit(*port, pin);
- }
+
+void gpio_clear(gpio_t gpio){
+    clear_bit(*(gpio.port), gpio.pin);
+}

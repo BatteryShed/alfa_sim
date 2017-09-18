@@ -3,9 +3,11 @@
  *
  * Created: 5/8/17 11:08:24 pm
  * Author : bldh
- */ 
+ */
+# define F_CPU 1000000UL
 
 #include <avr/io.h>
+#include <util/delay.h>
 
 #include "core.h"
 #include "pwm.h"
@@ -31,30 +33,28 @@ state_t current_state = SLEEP;
 
 uint8_t (*state_array[10]) ();
 
+gpio_t dash_led;
+
 int main(void)
 {
-	uint8_t ret;
 	init_core();
-	
+
+    dash_led = gpio_out_init(&PORTA, 0, &DDRA);
 	//Store function pointers in state array
-	state_array[0] = sleep;
-	state_array[1] = intro;
-	
+
 	while (1){
-		ret = (*state_array[current_state]) ();
-		if(ret && ret+1 < 10){
-			current_state += 1;
-		}
-		else{
-			current_state = 0;
-		}
-	}
+        gpio_set(dash_led);
+        _delay_ms(1000);
+        gpio_clear(dash_led);
+        _delay_ms(1000);
+    }
+    return(0);
 }
 
 uint8_t sleep(){
-	return 0;
+	return(0);
 }
 
 uint8_t intro(){
-	return 0;
+	return(0);
 }
